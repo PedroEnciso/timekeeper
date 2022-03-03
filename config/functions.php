@@ -23,7 +23,7 @@
             $passwordErr = 'Please enter your password';
             $submitErr++;
         } else {
-            $password = htmlspecialchars($_POST['password']);
+            $password = $_POST['password'];
         }
 
         if ($submitErr == 0) { // submit successfull 
@@ -32,27 +32,24 @@
             $result = mysqli_query($conn, $query);
             if (mysqli_num_rows($result) > 0) { // username exists in db
                 $user = mysqli_fetch_assoc($result);
-                $hashedPwd = $user['password'];
-                $checkPwd = password_verify($password, $hashedPwd);
-                echo $hashedPwd. "<br>";
-                echo password_hash($password, PASSWORD_DEFAULT);
 
-                if ($checkPwd === true) { // inputted pwd matches db pwd
-                    echo "Welcome " .$user['name'];
+                if (password_verify($password, $user['password'])) { // inputted pwd matches db pwd
                     $_SESSION['isLoggedIn'] = 'successful';
                     $_SESSION['name'] = $user['name'];
+                    // send logged in user to home page
+                    header('Location: ' .ROOT_URL);
                 } else {
                     $passwordErr = "The password was incorrect.";
                 }
             } else {
-                $usernameErr = "The username is incorrect.";
+                $usernameErr = "This username is incorrect.";
             }
         }
     }
 
     // function to register a new user
     function register() {
-        global $name, $username, $password, $conf_password, $nameErr, $usernameErr, $passwordErr, $submitErr, $error, $conn;
+        global $name, $username, $password, $conf_password, $nameErr, $usernameErr, $passwordErr, $submitErr, $error, $conn, $status;
 
         // validate name input
         if (empty($_POST['name'])) {
@@ -99,9 +96,9 @@
             $passwordErr = 'Please confirm your password.';
             $submitErr++;
         } else {
-            $passwword = htmlspecialchars($_POST['password']);
-            $conf_password = htmlspecialchars($_POST['conf_password']);
-            if($password === $conf_password) {
+            $password = $_POST['password'];
+            $conf_password = $_POST['conf_password'];
+            if($password != $conf_password) {
                 $passwordErr = 'Passwords do not match.';
                 $submitErr++;
             }
@@ -110,7 +107,7 @@
         // if all inputs are valid, send to database
         if ($submitErr === 0) {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            // TODO: create new user in database
+            // insert user credentials into database
             $query = "INSERT INTO users(name, username, password) VALUES('$name', '$username', '$hashedPassword')";
             if(mysqli_query($conn, $query)) {
                 $_SESSION['isLoggedIn'] = 'successful';
