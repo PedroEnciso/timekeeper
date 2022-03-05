@@ -2,6 +2,7 @@
     require('config/config.php');
     require('config/functions.php');
 
+    // check if user is logged in
     checkLogStatus();
 ?>
 

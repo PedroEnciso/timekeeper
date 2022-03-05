@@ -8,7 +8,7 @@
 
     // function to login the user
     function login() {
-        global $name, $username, $password, $conf_password, $nameErr, $usernameErr, $passwordErr, $submitErr, $error, $conn;
+        global $name, $username, $password, $conf_password, $nameErr, $usernameErr, $passwordErr, $submitErr, $status, $conn;
 
         if (empty($_POST['username'])) {
             // error, username is not provided
@@ -27,11 +27,13 @@
         }
 
         if ($submitErr == 0) { // submit successfull 
-            $query = "SELECT * FROM users WHERE username='".$username."'";
-            // get result
-            $result = mysqli_query($conn, $query);
-            if (mysqli_num_rows($result) > 0) { // username exists in db
-                $user = mysqli_fetch_assoc($result);
+            $stmt = $conn->prepare("SELECT * FROM users WHERE username=?");
+            $stmt->bind_param('s', $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows == 1) { // username exists in db
+                $user = $result->fetch_assoc();
 
                 if (password_verify($password, $user['password'])) { // inputted pwd matches db pwd
                     $_SESSION['isLoggedIn'] = 'successful';
@@ -78,14 +80,18 @@
                 $usernameErr = 'Username can only contain letters and numbers.';
                 $submitErr++;
             }
-            // check if username has already been taken
-            // $query = "SELECT * FROM users WHERE username = {$username}";
-            $query = "SELECT * FROM users WHERE username='".$username."'";
-            $result = mysqli_query($conn, $query);
-            if(mysqli_num_rows($result) > 0) {
+            // prepared statement to see if username is in db
+            $stmt = $conn->prepare("SELECT * FROM users WHERE username=?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) { // username is already in the db
                 $usernameErr = 'Sorry, this username already exists.';
                 $submitErr++;
             }
+            // close the prepared statement
+            $stmt->close();
         }
 
         // validate password input
@@ -104,18 +110,21 @@
             }
         }
 
-        // if all inputs are valid, send to database
-        if ($submitErr === 0) {
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            // insert user credentials into database
-            $query = "INSERT INTO users(name, username, password) VALUES('$name', '$username', '$hashedPassword')";
-            if(mysqli_query($conn, $query)) {
+        if ($submitErr === 0) { // all inputs are valid, send to db
+            // hash and salt the user's pssword
+            $pwdHash = password_hash($password, PASSWORD_DEFAULT);
+            // prepare statement to input user credentials
+            $stmt = $conn->prepare("INSERT INTO users (name, username, password) VALUES (?, ?, ?)");
+            $stmt->bind_param('sss', $name, $username, $pwdHash);
+            $stmt->execute();
+            if($stmt->error) { // submission to db failed
+                $status = 'Sorry, something went wrong. Please try again.';
+            } else { //successful
                 $_SESSION['isLoggedIn'] = 'successful';
-                $_SESSION['name'] = $name;
+                 $_SESSION['name'] = $name;
                 header('Location: ' .ROOT_URL);
-            } else {
-                $error = 'ERROR: ' .mysqli_error($conn);
             }
+            $stmt->close();
         }
     }
 
