@@ -5,7 +5,7 @@
 }
 
 /*
-    NAV STYLES
+  NAV STYLES
 */
 header {
   width: 100%;
@@ -55,7 +55,7 @@ a:hover {
 
 .nav_form input {
   border: none;
-  background-color: rgb(73, 73, 73);
+  background-color: #474040;
   color: #fff;
   padding: 0.75rem 0.5rem;
   font-weight: 500;
@@ -66,4 +66,14 @@ a:hover {
 
 .nav_form input:hover {
   background-color: rgb(231, 99, 99);
+}
+
+/* 
+  BODY/CONTENT STYLES
+*/
+
+.container {
+  width: 95%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
