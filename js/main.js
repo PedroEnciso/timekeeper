@@ -23,6 +23,8 @@ const createTimer = () => {
     disableButton(reset);
     disableButton(submit);
     enableButton(pause);
+    // alert so data is not lost
+    window.addEventListener("beforeunload", alertBeforeLeaving);
     timerCycle();
   };
 
@@ -39,6 +41,8 @@ const createTimer = () => {
     stopTime = true;
     setTimerDisplay("00", "00", "00");
     disableButton(submit);
+    // remove alert
+    window.removeEventListener("beforeunload", alertBeforeLeaving);
   };
 
   // timer cycle logic
@@ -92,9 +96,18 @@ const createTimer = () => {
     button.disabled = false;
   };
 
+  // alert user when trying to leave the page
+  // copied this from Google
+  const alertBeforeLeaving = (event) => {
+    event.preventDefault();
+    // Chrome requires returnValue to be set
+    e.returnValue = "";
+  };
+
   return { startTimer, stopTimer, resetTimer };
 };
 
+// create the timer
 const timer = createTimer();
 
 // assign button functions
