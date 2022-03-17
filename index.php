@@ -11,9 +11,10 @@
     <?php include('inc/nav.php'); ?>
 
     <main>
-        <section>
+        <section class="container">
             <h2>Your sessions:</h2>
-            <p><?php echo $_SESSION['isLoggedIn']; ?></p>
+            <div id="sessions"></div>
+            <a href="newSession.php">+ New Session</a>
         </section>
     </main>
     

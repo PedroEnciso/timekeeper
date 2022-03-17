@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 /*
   NAV STYLES
 */
@@ -32,15 +37,13 @@ ul {
   justify-content: space-between;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
+.nav-link {
   padding: 0.75rem 0.5rem;
   border-radius: 10px;
   transition: background-color 0.3s;
 }
 
-a:hover {
+.nav-link:hover {
   background-color: #dfdddd;
 }
 
@@ -76,4 +79,23 @@ a:hover {
   width: 95%;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* 
+  newSession classes
+*/
+
+.timer {
+  position: relative;
+}
+
+.timer input {
+  line-height: 15px;
+  border: none;
+}
+
+.time {
+  position: absolute;
+  top: 0;
+  line-height: 15px;
 }
